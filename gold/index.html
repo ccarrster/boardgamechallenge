@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dwarf Gold</title>
+<script src="jquery-3.3.1.min.js"></script>
+<script>
+function createGame(){
+
+}
+function signIn(){
+	var data = {};
+	data.username = $('#signinusername').val();
+	data.password = $('#signinpassword').val();
+	$.post('api.php?action=signin', {'data': data}, function(data){
+		console.log(data);
+	});
+}
+function createAccount(){
+	var data = {};
+	data.username = $('#createusername').val();
+	data.email = $('#createemail').val();
+	data.password = $('#createpassword').val();
+	$.post('api.php?action=createaccount', {'data': data}, function(data){
+		console.log(data);
+	});
+}
+function resetPassword(){
+	var data = {};
+	data.email = $('#resetemail').val();
+	$.post('api.php?action=resetpassword', {'data': data}, function(data){
+		console.log(data);
+	});
+}
+</script>
+</head>
+<body>
+<div>
+<div>
+Username <input type="text" id="signinusername">
+</div>
+<div>
+Password <input type="password" id="signinpassword">
+</div>
+<div>
+<input type="button" onclick="signIn()" value="Sign In">
+</div>
+
+<div>
+Username <input type="text" id="createusername">
+</div>
+<div>
+Email <input type="text" id="createemail">
+</div>
+<div>
+Password <input type="password" id="createpassword">
+</div>
+<div>
+<input type="button" onclick="createAccount()" value="Create Account">
+</div>
+
+<div>
+<div>
+Email <input type="text" id="resetemail">
+</div>
+<div>
+<input type="button" onclick="resetPassword()" value="Create Account">
+</div>
+
+<div>
+<input type="button" onclick="createGame()" value="Create Game">
+</div>
+</div>
+<div>
+<div>
+TODO
+</div>
+<ul>
+<li>Instructions</li>
+<li>AI</li>
+<li>Board</li>
+<li>Palacades</li>
+<li>Warriors</li>
+<li>Distribute Warriors(variations on number of players)</li>
+<li>Turns</li>
+<li>Number of players</li>
+<li>Factions</li>
+<li>Special Powers</li>
+<li>Reenforcements</li>
+<li>Peeking or not</li>
+<li>Gold setup</li>
+<li>Gold distribution</li>
+<li>Scoring at end of game</li>
+<li>Passing</li>
+<li>Dividing gold</li>
+<li>What is a territory</li>
+<li>Display/UI</li>
+<li>Resolving ties</li>
+<li>Chat</li>
+<li>Game history</li>
+<li>Resume saved game</li>
+<li>Disconnect</li>
+<li>AI take over</li>
+<li>Log game actions</li>
+<li>List games</li>
+<li>Private Games</li>
+<li>Invite url</li>
+<li>Password reset</li>
+</ul>
+</div>
+<div>
+<div>
+Done
+</div>
+<ul>
+<li>Create Account</li>
+<li>Sign In</li>
+<li>Validate Email</li>
+</ul>
+</div>
+</body>
+</html>
