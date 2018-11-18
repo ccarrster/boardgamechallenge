@@ -2,10 +2,7 @@
 require_once('PHPMailer.php');
 require_once('SMTP.php');
 require_once('Exception.php');
-$accountFile = 'accounts.json';
-$salt = 'sse5e#$#Sdfasdf35XSADF';
-$emailSalt = 'nasfl345n25k3%aSDFASDF';
-$tempPasswordSalt = 'Jln35i3nLkldln35l34';
+require_once('config.php');
 
 $response = [];
 if(isset($_GET['action'])){
@@ -52,7 +49,7 @@ if(isset($_GET['action'])){
 						$response['errors'][] = $error;
 					} else {
 						$response['type'] = 'success';
-						sendEmail($data['email'], 'Welcome to Dwarf Gold', '<a href="http://localhost/boardgamechallenge/gold/api.php?action=validate&key='.crypt($data["email"], $emailSalt).'">Verify your email address</a>');
+						sendEmail($data['email'], 'Welcome to Dwarf Gold', '<a href="'.$siteUrl.'/gold/api.php?action=validate&key='.crypt($data["email"], $emailSalt).'">Verify your email address</a>');
 					}
 				}
 			}
@@ -123,7 +120,7 @@ if(isset($_GET['action'])){
 			$error['message'] = 'Required field key missing.';
 			$response['errors'][] = $error;
 		}
-	if($action == 'resetpassword'){
+	} elseif($action == 'resetpassword'){
 		if(isset($_POST['data'])){
 			$data = $_POST['data'];
 			$requiredFields = ['email'];
@@ -134,15 +131,56 @@ if(isset($_GET['action'])){
 					foreach($accounts as &$account){
 						if($account->email === $data['email']){
 							$response['type'] = 'success';
-							//TODO generate and store temporary password
-							//TODO make new password frontend
-							sendEmail($data['email'], 'Password reset for Dwarf Gold', '<a href="http://localhost/boardgamechallenge/gold/index.html?action=newPassword>Change your password</a> Temporary Password: ');
+							$time = time();
+							$hash = crypt($data["email"].$time, $tempPasswordSalt);
+							sendEmail($data['email'], 'Password reset for Dwarf Gold', '<a href="'.$siteUrl.'/gold/reset.php?action=newPassword&email='.urlencode($data["email"]).'&time='.$time.'&hash='.$hash.'>Change your password</a> Temporary Password: ');
 							$match = true;
 						}
 					}
 				}
-				
-				//xxx
+			}
+		}
+	} elseif($action == 'confirmresetpassword'){
+		if(isset($_POST['data'])){
+			$data = $_POST['data'];
+			$requiredFields = ['email', 'time', 'hash', 'password', 'confirmpassword'];
+			if(validateRequiredFields($requiredFields, $data, $response)){
+				$newHash = crypt($data['email'].$data['time'], $tempPasswordSalt);
+				if($newHash === $data['hash']){
+					$match = false;
+					if(file_exists($accountFile)){
+						$accounts = json_decode(file_get_contents($accountFile));
+						foreach($accounts as &$account){
+							if($account->email === $data['email']){
+								if($data['password'] == $data['confirmpassword']){
+									$response['type'] = 'success';
+									$account->passwordhash = crypt($data['password'], $salt);
+									file_put_contents($accountFile, json_encode($accounts));
+								} else {
+									$response['type'] = 'error';
+									$error = [];
+									$error['type'] = 'Passwords do not match.';
+									$error['message'] = 'Passwords do not match.';
+									$response['errors'][] = $error;
+								}
+								$match = true;
+							}
+						}
+					}
+					if($match == false){
+						$response['type'] = 'error';
+						$error = [];
+						$error['type'] = 'Hash invalid.';
+						$error['message'] = 'Hash is invalid';
+						$response['errors'][] = $error;
+					}
+				} else {
+					$response['type'] = 'error';
+					$error = [];
+					$error['type'] = 'Hash invalid.';
+					$error['message'] = 'Hash is invalid';
+					$response['errors'][] = $error;
+				}
 			}
 		}
 	} else {
