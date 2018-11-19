@@ -33,16 +33,17 @@ function signIn(){
 <div id='account' style="display:none;">Account</div>
 <div id='auth'>
 	<div id='spinner' style="display:none;"><img src='../images/Ajax-loader.gif'></div>
+	<form>
 <div>
-Username <input type="text" id="signinusername">
+Username <input type="text" id="signinusername" autofocus>
 </div>
 <div>
 Password <input type="password" id="signinpassword">
 </div>
 <div>
-<input type="button" onclick="signIn()" value="Sign In">
+<input type="submit" onclick="signIn(); return false;" value="Sign In">
 </div>
-
+</form>
 <div>
 	<a href="createaccount.html">Create Account</a>
 </div>

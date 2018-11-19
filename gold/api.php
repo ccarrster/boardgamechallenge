@@ -10,27 +10,35 @@ if(isset($_GET['action'])){
 	if($action == 'createaccount'){
 		if(isset($_POST['data'])){
 			$data = $_POST['data'];
-			$requiredFields = ['username', 'email', 'password'];
+			$requiredFields = ['username', 'email', 'password', 'confirmpassword'];
 			if(validateRequiredFields($requiredFields, $data, $response)){
-				$accounts = [];
-				if(file_exists($accountFile)){
-					$accounts = json_decode(file_get_contents($accountFile));
-					foreach($accounts as $account){
-						if($account->username === $data['username']){
-							$response['type'] = 'error';
-							$error = [];
-							$error['type'] = 'username already taken.';
-							$error['message'] = 'The username '.$data['username'].' is already taken.';
-							$response['errors'][] = $error;
-						}
-						if($account->email === $data['email']){
-							$response['type'] = 'error';
-							$error = [];
-							$error['type'] = 'email already taken.';
-							$error['message'] = 'A user with the email address '.$data['email'].' already exists.';
-							$response['errors'][] = $error;
+				if($data['password'] === $data['confirmpassword']){
+					$accounts = [];
+					if(file_exists($accountFile)){
+						$accounts = json_decode(file_get_contents($accountFile));
+						foreach($accounts as $account){
+							if($account->username === $data['username']){
+								$response['type'] = 'error';
+								$error = [];
+								$error['type'] = 'username already taken.';
+								$error['message'] = 'The username '.$data['username'].' is already taken.';
+								$response['errors'][] = $error;
+							}
+							if($account->email === $data['email']){
+								$response['type'] = 'error';
+								$error = [];
+								$error['type'] = 'email already taken.';
+								$error['message'] = 'A user with the email address '.$data['email'].' already exists.';
+								$response['errors'][] = $error;
+							}
 						}
 					}
+				} else {
+					$response['type'] = 'error';
+					$error = [];
+					$error['type'] = 'passwords do not match.';
+					$error['message'] = 'The passwords provided do not match. Try again.';
+					$response['errors'][] = $error;
 				}
 				//No errors
 				if(count($response) == 0){

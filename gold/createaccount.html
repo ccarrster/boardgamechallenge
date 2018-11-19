@@ -11,15 +11,23 @@ function createAccount(){
 	data.username = $('#createusername').val();
 	data.email = $('#createemail').val();
 	data.password = $('#createpassword').val();
+	data.confirmpassword = $('#createconfirmpassword').val();
 	$.post('api.php?action=createaccount', {'data': data}, function(data){
 		$('#spinner').hide();
-		var result = JSON.parse(data);
-		if(result.type == 'success'){
+		var response = JSON.parse(data);
+		if(response.type == 'success'){
 			$('#register').hide();
 			$('#message').html('Check your email ('+$('#createemail').val()+') for a validation link.');
 			$('#message').show();
 		} else {
-			alert('Error creating account');
+			if(response.type == 'error'){
+				var errorMessage = '';
+				for(errorKey in response.errors){
+					var error = response.errors[errorKey];
+					errorMessage += error.message + ' ';
+				}
+				alert(errorMessage);
+			}
 		}
 	});
 }
@@ -27,8 +35,9 @@ function createAccount(){
 <div id='spinner' style="display:none;"><img src='../images/Ajax-loader.gif'></div>
 <div id='message'></div>
 <div id='register'>
+	<form>
 <div>
-Username <input type="text" id="createusername">
+Username <input type="text" id="createusername" autofocus>
 </div>
 <div>
 Email <input type="text" id="createemail">
@@ -37,8 +46,12 @@ Email <input type="text" id="createemail">
 Password <input type="password" id="createpassword">
 </div>
 <div>
-<input type="button" onclick="createAccount()" value="Create Account">
+Confirm Password <input type="password" id="createconfirmpassword">
 </div>
+<div>
+<input type="submit" onclick="createAccount(); return false;" value="Create Account">
+</div>
+</form>
 </div>
 <div><a href="index.html">Home</a></div>
 </body>	
