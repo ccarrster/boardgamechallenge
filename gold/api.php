@@ -49,7 +49,7 @@ if(isset($_GET['action'])){
 						$response['errors'][] = $error;
 					} else {
 						$response['type'] = 'success';
-						sendEmail($data['email'], 'Welcome to Dwarf Gold', '<a href="'.$siteUrl.'/gold/api.php?action=validate&key='.crypt($data["email"], $emailSalt).'">Verify your email address</a>');
+						sendEmail($data['email'], 'Welcome to Dwarf Gold', '<a href="'.$siteUrl.'/gold/validate.php?key='.crypt($data["email"], $emailSalt).'">Verify your email address</a>');
 					}
 				}
 			}
@@ -91,34 +91,32 @@ if(isset($_GET['action'])){
 			requiredDataError();
 		}
 	} elseif($action == 'validate'){
-		if(isset($_GET['key'])){
-			$match = false;
-			$key = $_GET['key'];
-			if(file_exists($accountFile)){
-				$accounts = json_decode(file_get_contents($accountFile));
-				foreach($accounts as &$account){
-					if(crypt($account->email, $emailSalt) === $key){
-						$response['type'] = 'success';
-						$account->validation = true;
-						$match = true;
+		if(isset($_POST['data'])){
+			$data = $_POST['data'];
+			$requiredFields = ['key'];
+			if(validateRequiredFields($requiredFields, $data, $response)){
+				$match = false;
+				$key = $data['key'];
+				if(file_exists($accountFile)){
+					$accounts = json_decode(file_get_contents($accountFile));
+					foreach($accounts as &$account){
+						if(crypt($account->email, $emailSalt) === $key){
+							$response['type'] = 'success';
+							$account->validation = true;
+							$match = true;
+						}
 					}
 				}
+				if($match === false){
+					$response['type'] = 'error';
+					$error = [];
+					$error['type'] = 'account not found to validate.';
+					$error['message'] = 'Account not found to validate.';
+					$response['errors'][] = $error;
+				} else {
+					file_put_contents($accountFile, json_encode($accounts));
+				}
 			}
-			if($match === false){
-				$response['type'] = 'error';
-				$error = [];
-				$error['type'] = 'account not found to validate.';
-				$error['message'] = 'Account not found to validate.';
-				$response['errors'][] = $error;
-			} else {
-				file_put_contents($accountFile, json_encode($accounts));
-			}
-		} else {
-			$response['type'] = 'error';
-			$error = [];
-			$error['type'] = 'required field key missing.';
-			$error['message'] = 'Required field key missing.';
-			$response['errors'][] = $error;
 		}
 	} elseif($action == 'resetpassword'){
 		if(isset($_POST['data'])){
@@ -133,7 +131,7 @@ if(isset($_GET['action'])){
 							$response['type'] = 'success';
 							$time = time();
 							$hash = crypt($data["email"].$time, $tempPasswordSalt);
-							sendEmail($data['email'], 'Password reset for Dwarf Gold', '<a href="'.$siteUrl.'/gold/reset.php?action=newPassword&email='.urlencode($data["email"]).'&time='.$time.'&hash='.$hash.'>Change your password</a> Temporary Password: ');
+							sendEmail($data['email'], 'Password reset for Dwarf Gold', '<a href="'.$siteUrl.'/gold/reset.php?action=newPassword&email='.urlencode($data["email"]).'&time='.$time.'&hash='.$hash.'">Change your password</a>');
 							$match = true;
 						}
 					}
@@ -250,12 +248,8 @@ function sendEmail($to, $subject, $body){
 	$mail->Body    = $body;
 
 	if(!$mail->send()) {
-	   echo 'Message could not be sent.';
-	   echo 'Mailer Error: ' . $mail->ErrorInfo;
-	   exit;
+		error_log($mail->ErrorInfo);
 	}
-
-	echo 'Message has been sent';
 }
 
 
