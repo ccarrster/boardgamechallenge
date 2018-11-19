@@ -83,7 +83,7 @@ if(isset($_GET['action'])){
 					$response['type'] = 'error';
 					$error = [];
 					$error['type'] = 'username and password combo not found.';
-					$error['message'] = 'username and password combo not found, try again or reset password.';
+					$error['message'] = 'username and password combo not found, try again, reset password or create an account.';
 					$response['errors'][] = $error;
 				}
 			}
@@ -131,10 +131,14 @@ if(isset($_GET['action'])){
 							$response['type'] = 'success';
 							$time = time();
 							$hash = crypt($data["email"].$time, $tempPasswordSalt);
-							sendEmail($data['email'], 'Password reset for Dwarf Gold', '<a href="'.$siteUrl.'/gold/reset.php?action=newPassword&email='.urlencode($data["email"]).'&time='.$time.'&hash='.$hash.'">Change your password</a>');
+							sendEmail($data['email'], 'Password reset request for Dwarf Gold', '<a href="'.$siteUrl.'/gold/reset.php?action=newPassword&email='.urlencode($data["email"]).'&time='.$time.'&hash='.$hash.'">Change your password</a>');
 							$match = true;
 						}
 					}
+				} 
+				if($match == false){
+					$response['type'] = 'success';
+					sendEmail($data['email'], 'Password reset request for Dwarf Gold', 'Someone has requested a password reset to this email, but we have no user with this email in the system. Maybe you used a different email address and could login with that one. Maybe you need to create a new account. Maybe someone typed in the wrong address and you can ignore this email. <a href="'.$siteUrl.'/gold/index.html">Dwarf Gold</a> <a href="'.$siteUrl.'/gold/createaccount.html">Create Account</a>');
 				}
 			}
 		}

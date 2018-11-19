@@ -4,37 +4,35 @@
 <title>Dwarf Gold</title>
 <script src="jquery-3.3.1.min.js"></script>
 <script>
-function createGame(){
-
-}
 function signIn(){
+	$('#spinner').show();
 	var data = {};
 	data.username = $('#signinusername').val();
 	data.password = $('#signinpassword').val();
 	$.post('api.php?action=signin', {'data': data}, function(data){
-		console.log(data);
-	});
-}
-function createAccount(){
-	var data = {};
-	data.username = $('#createusername').val();
-	data.email = $('#createemail').val();
-	data.password = $('#createpassword').val();
-	$.post('api.php?action=createaccount', {'data': data}, function(data){
-		console.log(data);
-	});
-}
-function resetPassword(){
-	var data = {};
-	data.email = $('#resetemail').val();
-	$.post('api.php?action=resetpassword', {'data': data}, function(data){
-		console.log(data);
+		$('#spinner').hide();
+		var response = JSON.parse(data);
+		if(response.type == 'success'){
+			$('#auth').hide();
+			$('#account').show();
+		} else {
+			if(response.type == 'error'){
+				var errorMessage = '';
+				for(errorKey in response.errors){
+					var error = response.errors[errorKey];
+					errorMessage += error.message + ' ';
+				}
+				alert(errorMessage);
+			}
+		}
 	});
 }
 </script>
 </head>
 <body>
-<div>
+<div id='account' style="display:none;">Account</div>
+<div id='auth'>
+	<div id='spinner' style="display:none;"><img src='../images/Ajax-loader.gif'></div>
 <div>
 Username <input type="text" id="signinusername">
 </div>
@@ -46,29 +44,14 @@ Password <input type="password" id="signinpassword">
 </div>
 
 <div>
-Username <input type="text" id="createusername">
-</div>
-<div>
-Email <input type="text" id="createemail">
-</div>
-<div>
-Password <input type="password" id="createpassword">
-</div>
-<div>
-<input type="button" onclick="createAccount()" value="Create Account">
+	<a href="createaccount.html">Create Account</a>
 </div>
 
 <div>
-<div>
-Email <input type="text" id="resetemail">
-</div>
-<div>
-<input type="button" onclick="resetPassword()" value="Reset Password">
+	<a href="forgotpassword.html">Forgot Password</a>
 </div>
 
-<div>
-<input type="button" onclick="createGame()" value="Create Game">
-</div>
+
 </div>
 <div>
 <div>
@@ -104,7 +87,8 @@ TODO
 <li>List games</li>
 <li>Private Games</li>
 <li>Invite url</li>
-<li>Password reset</li>
+<li>Auth Token</li>
+<li>Refactor Auth</li>
 </ul>
 </div>
 <div>
@@ -115,6 +99,7 @@ Done
 <li>Create Account</li>
 <li>Sign In</li>
 <li>Validate Email</li>
+<li>Password reset</li>
 </ul>
 </div>
 </body>

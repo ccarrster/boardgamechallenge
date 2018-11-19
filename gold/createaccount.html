@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<script>
+function createAccount(){
+	$('#spinner').show();
+	var data = {};
+	data.username = $('#createusername').val();
+	data.email = $('#createemail').val();
+	data.password = $('#createpassword').val();
+	$.post('api.php?action=createaccount', {'data': data}, function(data){
+		$('#spinner').hide();
+		var result = JSON.parse(data);
+		if(result.type == 'success'){
+			$('#register').hide();
+			$('#message').html('Check your email ('+$('#createemail').val()+') for a validation link.');
+			$('#message').show();
+		} else {
+			alert('Error creating account');
+		}
+	});
+}
+</script>
+<div id='spinner' style="display:none;"><img src='../images/Ajax-loader.gif'></div>
+<div id='message'></div>
+<div id='register'>
+<div>
+Username <input type="text" id="createusername">
+</div>
+<div>
+Email <input type="text" id="createemail">
+</div>
+<div>
+Password <input type="password" id="createpassword">
+</div>
+<div>
+<input type="button" onclick="createAccount()" value="Create Account">
+</div>
+</div>
+<div><a href="index.html">Home</a></div>
+</body>	
+</html>
